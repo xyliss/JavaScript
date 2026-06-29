@@ -1,0 +1,97 @@
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>第一个 DApp</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; }
+        #count { font-size: 24px; font-weight: bold; margin: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🔢 计数器 DApp</h1>
+    <button id="connect">连接钱包</button>
+    
+    <div id="contractInfo" style="display:none">
+        <p>合约地址: <span id="contractAddress"></span></p>
+        <p>当前数字: <span id="count">0</span></p>
+        <button id="increment">➕ 增加</button>
+        <button id="decrement">➖ 减少</button>
+        <button id="refresh">🔄 刷新</button>
+    </div>
+
+    <!-- 引入 ethers.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    
+    <script>
+        let provider;
+        let signer;
+        let contract;
+        let contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";  // ⚠️ 替换为你的部署地址
+
+        // 合约 ABI（从编译产物复制）
+        const abi = [
+            "function increment() public",
+            "function decrement() public",
+            "function getCount() public view returns (uint256)",
+            "event CountChanged(uint256 newCount)"
+        ];
+
+        document.getElementById('connect').onclick = async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // 请求连接钱包
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    
+                    // 初始化 provider 和 signer
+                    provider = new ethers.BrowserProvider(window.ethereum);
+                    signer = await provider.getSigner();
+                    
+                    // 初始化合约
+                    contract = new ethers.Contract(contractAddress, abi, signer);
+                    
+                    // 显示合约信息区域
+                    document.getElementById('contractInfo').style.display = 'block';
+                    document.getElementById('contractAddress').innerText = contractAddress;
+                    
+                    // 获取初始数字
+                    await refreshCount();
+                    
+                    alert('钱包连接成功！');
+                } catch (error) {
+                    console.error(error);
+                    alert('连接失败：' + error.message);
+                }
+            } else {
+                alert('请先安装 MetaMask！');
+            }
+        };
+
+        document.getElementById('increment').onclick = async () => {
+            if (contract) {
+                const tx = await contract.increment();
+                await tx.wait();
+                await refreshCount();
+            }
+        };
+
+        document.getElementById('decrement').onclick = async () => {
+            if (contract) {
+                const tx = await contract.decrement();
+                await tx.wait();
+                await refreshCount();
+            }
+        };
+
+        document.getElementById('refresh').onclick = refreshCount;
+
+        async function refreshCount() {
+            if (contract) {
+                const count = await contract.getCount();
+                document.getElementById('count').innerText = count.toString();
+            }
+        }
+    </script>
+</body>
+</html>

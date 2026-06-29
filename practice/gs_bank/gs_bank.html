@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>广商私人银行</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .card {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover { background-color: #45a049; }
+        .transaction-list {
+            list-style: none;
+            padding: 0;
+        }
+        .transaction-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .success {
+            color: green; padding: 10px;
+        }
+        .error {
+            color: red; padding: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🏦 广商私人银行</h1>
+
+        <div>
+            <p>当前账户：<span id="account">0x5B38Da6a...eddc4</span></p>
+            <p>存款余额：<span id="balance">12.50</span> ETH</p>
+        </div>
+
+        <!-- 消息显示区域 -->
+        <div id="message"></div>
+
+        <div>
+            <h2>💰 存款</h2>
+            <input type="number" id="depositAmount" placeholder="输入 ETH 数量">
+            <button id="depositBtn">存款</button>
+        </div>
+
+        <div>
+            <h2>💸 取款</h2>
+            <input type="number" id="withdrawAmount" placeholder="输入 ETH 数量">
+            <button id="withdrawBtn">取款</button>
+        </div>
+
+        <div>
+            <h2>📋 最近交易</h2>
+            <ul class="transaction-list" id="transactionList">
+                <li>存款 +2.00 ETH — 2026-02-15 14:30</li>
+                <li>取款 -0.50 ETH — 2026-01-14 09:15</li>
+                <li>存款 +1.00 ETH — 2025-11-13 20:00</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        // 1. 初始化全局变量 & 获取DOM元素
+        let currentBalance = 12.50; // 初始余额
+        const balanceEl = document.getElementById('balance');
+        const messageEl = document.getElementById('message');
+        const depositInput = document.getElementById('depositAmount');
+        const depositBtn = document.getElementById('depositBtn');
+        const withdrawInput = document.getElementById('withdrawAmount');
+        const withdrawBtn = document.getElementById('withdrawBtn');
+        const transactionList = document.getElementById('transactionList');
+
+        // 2. 时间格式化函数：转换为 年-月-日 时:分
+        function formatDate() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hour = String(now.getHours()).padStart(2, '0');
+            const minute = String(now.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hour}:${minute}`;
+        }
+
+        // 3. 消息提示函数：区分成功/错误样式
+        function showMessage(text, type) {
+            messageEl.className = type;
+            messageEl.innerText = text;
+            // 3秒后清空提示
+            setTimeout(() => {
+                messageEl.innerText = '';
+                messageEl.className = '';
+            }, 3000);
+        }
+
+        // 4. 新增交易记录（插入到列表最顶部）
+        function addTransaction(text) {
+            const li = document.createElement('li');
+            li.innerText = text;
+            transactionList.insertBefore(li, transactionList.firstChild);
+        }
+
+        // 5. 存款功能逻辑
+        depositBtn.addEventListener('click', function() {
+            const amount = parseFloat(depositInput.value);
+            // 校验金额合法性
+            if (isNaN(amount) || amount <= 0) {
+                showMessage('请输入大于0的有效金额！', 'error');
+                return;
+            }
+            // 更新余额，保留2位小数
+            currentBalance = (currentBalance + amount).toFixed(2);
+            balanceEl.innerText = currentBalance;
+            // 新增交易记录
+            const time = formatDate();
+            addTransaction(`存款 +${amount.toFixed(2)} ETH — ${time}`);
+            // 成功提示 + 清空输入框
+            showMessage('存款成功！', 'success');
+            depositInput.value = '';
+        });
+
+        // 6. 取款功能逻辑
+        withdrawBtn.addEventListener('click', function() {
+            const amount = parseFloat(withdrawInput.value);
+            // 校验金额合法性
+            if (isNaN(amount) || amount <= 0) {
+                showMessage('请输入大于0的有效金额！', 'error');
+                return;
+            }
+            // 校验余额是否充足
+            if (parseFloat(currentBalance) < amount) {
+                showMessage('余额不足，无法完成取款！', 'error');
+                return;
+            }
+            // 更新余额，保留2位小数
+            currentBalance = (parseFloat(currentBalance) - amount).toFixed(2);
+            balanceEl.innerText = currentBalance;
+            // 新增交易记录
+            const time = formatDate();
+            addTransaction(`取款 -${amount.toFixed(2)} ETH — ${time}`);
+            // 成功提示 + 清空输入框
+            showMessage('取款成功！', 'success');
+            withdrawInput.value = '';
+        });
+    </script>
+</body>
+</html>

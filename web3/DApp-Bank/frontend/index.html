@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>DApp Bank</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="background"></div>
+
+<div class="container">
+
+    <h1>🏦 DApp Bank</h1>
+    <p class="subtitle">基于区块链的去中心化银行管理系统</p>
+
+    <div class="card">
+        <button onclick="connectWallet()">连接钱包</button>
+    </div>
+
+    <div class="card">
+        <h2>账户余额</h2>
+        <p id="balance">0 ETH</p>
+        <button onclick="getBalance()">查询余额</button>
+    </div>
+
+    <div class="card">
+        <h2>存款</h2>
+        <input type="text" id="depositAmount" placeholder="输入ETH数量">
+        <button onclick="deposit()">存款</button>
+    </div>
+
+    <div class="card">
+        <h2>取款</h2>
+        <input type="text" id="withdrawAmount" placeholder="输入ETH数量">
+        <button onclick="withdraw()">取款</button>
+    </div>
+
+    <div class="card">
+        <h2>转账</h2>
+        <input type="text" id="transferAddress" placeholder="目标地址">
+        <input type="text" id="transferAmount" placeholder="ETH数量">
+        <button onclick="transfer()">转账</button>
+    </div>
+
+    <div class="card">
+        <h2>交易记录</h2>
+
+        <p class="tip">
+            为提升系统运行效率与界面可读性，
+            本页面默认仅展示最近 5 条交易记录。
+            如需查看更多历史记录，请点击下方按钮。
+        </p>
+
+        <button onclick="toggleTransactions()">查看/收起交易记录</button>
+
+        <ul id="txList"></ul>
+
+        <button id="moreBtn"
+                onclick="goToRecords()"
+                style="display:none;">
+            查看更多记录
+        </button>
+    </div>
+
+    <div class="card">
+        <h2>管理员功能</h2>
+
+        <p>
+            当前取款限额：
+            <span id="currentLimit">0 ETH</span>
+        </p>
+
+        <button onclick="getLimit()">查看当前限额</button>
+
+        <br><br>
+
+        <input type="text"
+               id="newLimit"
+               placeholder="新的取款限额(ETH)">
+
+        <button onclick="setLimit()">设置取款限额</button>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
